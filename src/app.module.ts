@@ -1,10 +1,24 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './user/user.module';
+import { MovieModule } from './movie/movie.module';
+import { GenreModule } from './genre/genre.module';
+import POSTRGRES_CONNECTION from './config/postgres.connection';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot({
+      ...POSTRGRES_CONNECTION,
+      synchronize: false,
+      autoLoadEntities: true,
+    }),
+    UserModule,
+    MovieModule,
+    GenreModule,
+  ],
 })
 export class AppModule {}
