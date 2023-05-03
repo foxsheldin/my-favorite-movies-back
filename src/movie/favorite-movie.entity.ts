@@ -10,11 +10,11 @@ import {
 
 @Entity({ name: 'favorite_movies' })
 export class FavoriteMovie extends BaseEntity {
-  @PrimaryColumn({ type: 'character varying' })
+  @PrimaryColumn()
   userId: string;
 
   @Column({ type: 'numeric' })
-  movie: number;
+  movieId: number;
 
   @Column({ type: 'boolean', name: 'watched', default: false })
   isWatched: boolean;
