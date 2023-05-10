@@ -5,16 +5,19 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity({ name: 'favorite_genres' })
 export class FavoriteGenre extends BaseEntity {
-  @PrimaryColumn()
-  userId: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column({ type: 'numeric' })
   genreId: number;
+
+  @Column()
+  userId: string;
 
   @ManyToOne(() => User, (user) => user.favoriteGenres, { onDelete: 'CASCADE' })
   @JoinColumn()
