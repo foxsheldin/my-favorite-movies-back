@@ -1,11 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatedOrDeletedFavoriteMovie } from './dto/created-or-deleted-favorite-movie.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FavoriteMovie } from './favorite-movie.entity';
 import { Repository } from 'typeorm';
 import { UpdatedWatchFavoriteMovieStatus } from './dto/updated-status.dto';
 import { RequestMoviesService } from 'src/request-movies/request-movies.service';
-import { IGetFavoriteMovieListOutput } from './favorite-movies.types';
+import {
+  IFavoriteMovieData,
+  IGetFavoriteMovieListOutput,
+} from './favorite-movies.types';
 
 @Injectable()
 export class MovieService {
@@ -54,18 +61,37 @@ export class MovieService {
 
   async createFavoriteMovie(
     movieDto: CreatedOrDeletedFavoriteMovie,
-  ): Promise<number[]> {
-    await this.favoriteMovieRepository.create(movieDto).save();
-    const favoriteMovieIds = await this.favoriteMovieRepository.findBy({
-      userId: movieDto.userId,
-    });
+  ): Promise<IFavoriteMovieData> {
+    const favoriteMovie = await this.favoriteMovieRepository.findOneBy(
+      movieDto,
+    );
 
-    return favoriteMovieIds.map((item) => item.movieId);
+    if (favoriteMovie) {
+      throw new BadRequestException(
+        'The movie has already been added to favorites',
+      );
+    }
+
+    await this.favoriteMovieRepository.create(movieDto).save();
+
+    const movieData = await this.requestMoviesService.getMovieById(
+      movieDto.movieId,
+    );
+
+    return { ...movieData, isFavorite: true, isWatched: false };
   }
 
   async deleteFavoriteMovie(
     movieDto: CreatedOrDeletedFavoriteMovie,
   ): Promise<number> {
+    const favoriteMovie = await this.favoriteMovieRepository.findOneBy(
+      movieDto,
+    );
+
+    if (!favoriteMovie) {
+      throw new NotFoundException('The movie does not exist in favorites');
+    }
+
     await this.favoriteMovieRepository.delete(movieDto);
     return movieDto.movieId;
   }
