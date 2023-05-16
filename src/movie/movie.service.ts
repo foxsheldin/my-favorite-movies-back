@@ -41,7 +41,6 @@ export class MovieService {
 
     const results = favoriteMoviesIds.map((movie, index) => ({
       ...favoriteMovies[index],
-      isFavorite: true,
       isWatched: movie.isWatched,
     }));
 
