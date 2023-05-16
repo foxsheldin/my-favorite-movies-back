@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { MovieModule } from './movie/movie.module';
 import { GenreModule } from './genre/genre.module';
+import { RequestMoviesModule } from './request-movies/request-movies.module';
 import POSTRGRES_CONNECTION from './config/postgres.connection';
 
 @Module({
@@ -19,6 +20,7 @@ import POSTRGRES_CONNECTION from './config/postgres.connection';
     UserModule,
     MovieModule,
     GenreModule,
+    RequestMoviesModule,
   ],
 })
 export class AppModule {}
