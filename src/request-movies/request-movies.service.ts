@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { camelizeKeys, decamelizeKeys } from 'humps';
@@ -15,6 +15,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class RequestMoviesService {
+  private readonly logger = new Logger(RequestMoviesService.name);
+
   constructor(
     private readonly httpService: HttpService,
     @InjectRepository(FavoriteMovie)
@@ -105,7 +107,7 @@ export class RequestMoviesService {
       const response = await this.httpService.axiosRef.get(`movie/${movieId}`);
       return response.data;
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
     }
   }
 }
