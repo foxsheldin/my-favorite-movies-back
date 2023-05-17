@@ -9,18 +9,18 @@ import {
 } from 'class-validator';
 
 @InputType()
-export class MoviesListDto {
-  @Field()
+export class AllMovieListDto {
+  @Field({ nullable: true })
   @IsOptional()
   @IsString()
   language?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsNumber()
   page?: number;
 
-  @Field(() => [Number])
+  @Field(() => [Number], { nullable: true })
   @IsOptional()
   @IsArray()
   @Exclude()
@@ -32,7 +32,7 @@ export class MoviesListDto {
   @Exclude()
   popularity: number[];
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsNumber()
   releaseYear?: number;

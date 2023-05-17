@@ -9,19 +9,12 @@ import {
 } from './request-movies.types';
 import { GenreDto } from './dto/genre.dto';
 import { MoviesListDto } from './dto/movies-list.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FavoriteMovie } from 'src/movie/favorite-movie.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class RequestMoviesService {
   private readonly logger = new Logger(RequestMoviesService.name);
 
-  constructor(
-    private readonly httpService: HttpService,
-    @InjectRepository(FavoriteMovie)
-    private readonly favoriteMovieRepository: Repository<FavoriteMovie>,
-  ) {
+  constructor(private readonly httpService: HttpService) {
     httpService.axiosRef.defaults.params = {
       apiKey: process.env.MOVIE_DB_API_KEY,
     };
@@ -65,41 +58,25 @@ export class RequestMoviesService {
   }
 
   async getMoviesList(dto: MoviesListDto): Promise<IMovieResponseData> {
-    const requestFavoriteMovies = this.favoriteMovieRepository.find({
-      where: { userId: dto.userId },
-    });
-    const requestMoviesData = this.httpService.axiosRef.get<IMovieResponseData>(
-      'discover/movie',
-      {
-        params: {
-          language: dto.language,
-          withGenres: dto.selectedGenres?.join(',') ?? '',
-          year: dto.releaseYear,
-          'vote_average.gte': dto.popularity[0],
-          'vote_average.lte': dto.popularity[1],
-          page: dto.page,
+    try {
+      const response = await this.httpService.axiosRef.get<IMovieResponseData>(
+        'discover/movie',
+        {
+          params: {
+            language: dto.language,
+            withGenres: dto.selectedGenres?.join(',') ?? '',
+            year: dto.releaseYear,
+            'vote_average.gte': dto.popularity[0],
+            'vote_average.lte': dto.popularity[1],
+            page: dto.page,
+          },
         },
-      },
-    );
-
-    const [favoriteMovies, moviesData] = await Promise.all([
-      requestFavoriteMovies,
-      requestMoviesData,
-    ]);
-
-    const results = moviesData.data.results.map((movie) => {
-      const favoriteMovie = favoriteMovies.find(
-        (favoriteMovie) => favoriteMovie.movieId == movie.id,
       );
 
-      return {
-        ...movie,
-        isFavorite: !!favoriteMovie,
-        isWatched: !!favoriteMovie?.isWatched,
-      };
-    });
-
-    return { ...moviesData.data, results };
+      return response.data;
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 
   async getMovieById(movieId: number): Promise<IMovieData> {

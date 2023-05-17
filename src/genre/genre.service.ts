@@ -26,7 +26,7 @@ export class GenreService {
       where: { userId: genreDto.userId },
     });
 
-    const selectedGenres = favoriteGenres.map((item) => item.genreId);
+    const selectedGenres = favoriteGenres.map((item) => Number(item.genreId));
 
     if (selectedGenres.includes(genreDto.genreId)) {
       await this.favoriteGenreRepository.delete(genreDto);

@@ -1,0 +1,86 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AllMovieListDto {
+  language: String
+  page: Float
+  popularity: [Float!]!
+  releaseYear: Float
+  selectedGenres: [Float!]
+}
+
+input CreateUserDto {
+  password: String!
+  username: String!
+}
+
+type FavoriteGenre {
+  genreId: Float!
+  id: Int!
+  user: User!
+  userId: String!
+}
+
+type FavoriteMovie {
+  id: Int!
+  isWatched: Boolean!
+  movieId: Float!
+  user: User!
+  userId: String!
+}
+
+type FavoriteMovieDto {
+  adult: Boolean!
+  backdropPath: String!
+  genreIds: [Float!]!
+  id: Float!
+  isFavorite: Boolean
+  isWatched: Boolean!
+  originalLanguage: String!
+  originalTitle: String!
+  overview: String!
+  popularity: Float!
+  posterPath: String!
+  releaseDate: String!
+  title: String!
+  video: Boolean!
+  voteAverage: Float!
+  voteCount: Float!
+}
+
+type GetFavoriteMovieListOutput {
+  page: Float!
+  results: [FavoriteMovieDto!]
+  totalPages: Float!
+  totalResults: Float!
+}
+
+type Mutation {
+  createFavoriteMovie(movieId: Float!, userId: String!): FavoriteMovieDto!
+  createUser(data: CreateUserDto!): User!
+  deleteFavoriteMovie(movieId: Float!, userId: String!): Float!
+  updateSelectedGenres(data: UpdatedFavoriteGenres!): [Float!]!
+  updateWatchedMovieStatus(movieId: Float!, status: Boolean!, userId: String!): FavoriteMovie!
+}
+
+type Query {
+  getAllMovies(params: AllMovieListDto!, userId: String!): GetFavoriteMovieListOutput!
+  getFavoriteGenresList(userId: String!): [Float!]!
+  getFavoriteMovieIds(userId: String!): [Float!]!
+  getFavoriteMovieList(limit: Float!, page: Float!, userId: String!): GetFavoriteMovieListOutput!
+  getProfile(userId: String!): User!
+}
+
+input UpdatedFavoriteGenres {
+  genreId: Float!
+  userId: String!
+}
+
+type User {
+  favoriteGenres: [FavoriteGenre!]!
+  favoriteMovies: [FavoriteMovie!]!
+  id: String!
+  password: String!
+  username: String!
+}

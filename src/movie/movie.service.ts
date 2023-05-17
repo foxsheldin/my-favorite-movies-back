@@ -3,16 +3,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreatedOrDeletedFavoriteMovie } from './dto/created-or-deleted-favorite-movie.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FavoriteMovie } from './favorite-movie.entity';
 import { Repository } from 'typeorm';
+
+import { CreatedOrDeletedFavoriteMovie } from './dto/created-or-deleted-favorite-movie.dto';
+import { FavoriteMovie } from './favorite-movie.entity';
 import { UpdatedWatchFavoriteMovieStatus } from './dto/updated-status.dto';
 import { RequestMoviesService } from 'src/request-movies/request-movies.service';
-import {
-  IFavoriteMovieData,
-  IGetFavoriteMovieListOutput,
-} from './favorite-movies.types';
+import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.dto';
+import { FavoriteMovieDto } from './dto/favorite-movie-data.dto';
+import { AllMovieListDto } from './dto/all-movie-list.dto';
 
 @Injectable()
 export class MovieService {
@@ -26,7 +26,7 @@ export class MovieService {
     userId: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<IGetFavoriteMovieListOutput> {
+  ): Promise<GetFavoriteMovieListOutput> {
     const [favoriteMoviesIds, totalResults] =
       await this.favoriteMovieRepository.findAndCount({
         where: { userId },
@@ -52,6 +52,36 @@ export class MovieService {
     };
   }
 
+  async getAllMovies(
+    userId: string,
+    params: AllMovieListDto,
+  ): Promise<GetFavoriteMovieListOutput> {
+    const requestFavoriteMovies = this.favoriteMovieRepository.find({
+      where: { userId },
+    });
+
+    const requestMoviesData = this.requestMoviesService.getMoviesList(params);
+
+    const [favoriteMovies, moviesData] = await Promise.all([
+      requestFavoriteMovies,
+      requestMoviesData,
+    ]);
+
+    const results = moviesData.results.map((movie) => {
+      const favoriteMovie = favoriteMovies.find(
+        (favoriteMovie) => favoriteMovie.movieId == movie.id,
+      );
+
+      return {
+        ...movie,
+        isFavorite: !!favoriteMovie,
+        isWatched: !!favoriteMovie?.isWatched,
+      };
+    });
+
+    return { ...moviesData, results };
+  }
+
   async getFavoriteMovieIds(userId: string): Promise<number[]> {
     return (
       await this.favoriteMovieRepository.find({ where: { userId: userId } })
@@ -60,7 +90,7 @@ export class MovieService {
 
   async createFavoriteMovie(
     movieDto: CreatedOrDeletedFavoriteMovie,
-  ): Promise<IFavoriteMovieData> {
+  ): Promise<FavoriteMovieDto> {
     const favoriteMovie = await this.favoriteMovieRepository.findOneBy(
       movieDto,
     );
