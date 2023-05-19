@@ -7,8 +7,8 @@ import {
   IMovieData,
   IMovieResponseData,
 } from './request-movies.types';
-import { GenreDto } from './dto/genre.dto';
 import { MoviesListDto } from './dto/movies-list.dto';
+import { GenreListOutput } from './dto/genre-list.output';
 
 @Injectable()
 export class RequestMoviesService {
@@ -50,25 +50,35 @@ export class RequestMoviesService {
     );
   }
 
-  async getGenre(dto: GenreDto): Promise<IGenreResponseData> {
-    const response = await this.httpService.axiosRef.get('genre/movie/list', {
-      params: { language: dto.language },
-    });
-    return response.data;
+  async getGenre(language?: string): Promise<GenreListOutput[]> {
+    const response = await this.httpService.axiosRef.get<IGenreResponseData>(
+      'genre/movie/list',
+      {
+        params: { language },
+      },
+    );
+
+    return response.data.genres;
   }
 
-  async getMoviesList(dto: MoviesListDto): Promise<IMovieResponseData> {
+  async getMoviesList({
+    language,
+    selectedGenres,
+    releaseYear,
+    popularity,
+    page,
+  }: MoviesListDto): Promise<IMovieResponseData> {
     try {
       const response = await this.httpService.axiosRef.get<IMovieResponseData>(
         'discover/movie',
         {
           params: {
-            language: dto.language,
-            withGenres: dto.selectedGenres?.join(',') ?? '',
-            year: dto.releaseYear,
-            'vote_average.gte': dto.popularity[0],
-            'vote_average.lte': dto.popularity[1],
-            page: dto.page,
+            language,
+            withGenres: selectedGenres?.join(',') ?? '',
+            year: releaseYear,
+            'vote_average.gte': popularity[0],
+            'vote_average.lte': popularity[1],
+            page,
           },
         },
       );
@@ -79,9 +89,11 @@ export class RequestMoviesService {
     }
   }
 
-  async getMovieById(movieId: number): Promise<IMovieData> {
+  async getMovieById(movieId: number, language?: string): Promise<IMovieData> {
     try {
-      const response = await this.httpService.axiosRef.get(`movie/${movieId}`);
+      const response = await this.httpService.axiosRef.get(`movie/${movieId}`, {
+        params: { language },
+      });
       return response.data;
     } catch (error) {
       this.logger.error(error);

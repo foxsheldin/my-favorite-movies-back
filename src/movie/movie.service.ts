@@ -10,9 +10,10 @@ import { CreatedOrDeletedFavoriteMovie } from './dto/created-or-deleted-favorite
 import { FavoriteMovie } from './favorite-movie.entity';
 import { UpdatedWatchFavoriteMovieStatus } from './dto/updated-status.dto';
 import { RequestMoviesService } from 'src/request-movies/request-movies.service';
-import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.dto';
+import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.output';
 import { FavoriteMovieDto } from './dto/favorite-movie-data.dto';
-import { AllMovieListDto } from './dto/all-movie-list.dto';
+import { MovieFilterDto } from './dto/movie-filter.dto';
+import { GetFavoriteMovieListInput } from './dto/get-favorite-movie-list.input';
 
 @Injectable()
 export class MovieService {
@@ -24,9 +25,10 @@ export class MovieService {
 
   async getFavoriteMovieList(
     userId: string,
-    page: number = 1,
-    limit: number = 10,
+    params: GetFavoriteMovieListInput,
   ): Promise<GetFavoriteMovieListOutput> {
+    const { language, limit, page } = params;
+
     const [favoriteMoviesIds, totalResults] =
       await this.favoriteMovieRepository.findAndCount({
         where: { userId },
@@ -35,7 +37,7 @@ export class MovieService {
       });
 
     const favoriteMoviesPromises = favoriteMoviesIds.map((movie) =>
-      this.requestMoviesService.getMovieById(movie.movieId),
+      this.requestMoviesService.getMovieById(movie.movieId, language),
     );
     const favoriteMovies = await Promise.all(favoriteMoviesPromises);
 
@@ -54,7 +56,7 @@ export class MovieService {
 
   async getAllMovies(
     userId: string,
-    params: AllMovieListDto,
+    params: MovieFilterDto,
   ): Promise<GetFavoriteMovieListOutput> {
     const requestFavoriteMovies = this.favoriteMovieRepository.find({
       where: { userId },
@@ -90,6 +92,7 @@ export class MovieService {
 
   async createFavoriteMovie(
     movieDto: CreatedOrDeletedFavoriteMovie,
+    language?: string,
   ): Promise<FavoriteMovieDto> {
     const favoriteMovie = await this.favoriteMovieRepository.findOneBy(
       movieDto,
@@ -105,6 +108,7 @@ export class MovieService {
 
     const movieData = await this.requestMoviesService.getMovieById(
       movieDto.movieId,
+      language,
     );
 
     return { ...movieData, isFavorite: true, isWatched: false };

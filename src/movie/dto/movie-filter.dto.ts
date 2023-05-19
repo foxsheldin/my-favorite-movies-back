@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 
 @InputType()
-export class AllMovieListDto {
+export class MovieFilterDto {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

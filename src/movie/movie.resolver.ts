@@ -1,9 +1,10 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MovieService } from './movie.service';
-import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.dto';
+import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.output';
 import { FavoriteMovie } from './favorite-movie.entity';
 import { FavoriteMovieDto } from './dto/favorite-movie-data.dto';
-import { AllMovieListDto } from './dto/all-movie-list.dto';
+import { MovieFilterDto } from './dto/movie-filter.dto';
+import { GetFavoriteMovieListInput } from './dto/get-favorite-movie-list.input';
 
 @Resolver()
 export class MovieResolver {
@@ -12,16 +13,15 @@ export class MovieResolver {
   @Query(() => GetFavoriteMovieListOutput)
   getFavoriteMovieList(
     @Args('userId') userId: string,
-    @Args('page') page: number,
-    @Args('limit') limit: number,
+    @Args('params') params: GetFavoriteMovieListInput,
   ): Promise<GetFavoriteMovieListOutput> {
-    return this.movieService.getFavoriteMovieList(userId, page, limit);
+    return this.movieService.getFavoriteMovieList(userId, params);
   }
 
   @Query(() => GetFavoriteMovieListOutput)
   getAllMovies(
     @Args('userId') userId: string,
-    @Args('params') params: AllMovieListDto,
+    @Args('params') params: MovieFilterDto,
   ): Promise<GetFavoriteMovieListOutput> {
     return this.movieService.getAllMovies(userId, params);
   }
@@ -35,8 +35,9 @@ export class MovieResolver {
   createFavoriteMovie(
     @Args('userId') userId: string,
     @Args('movieId') movieId: number,
+    @Args('language', { nullable: true }) language?: string,
   ): Promise<FavoriteMovieDto> {
-    return this.movieService.createFavoriteMovie({ userId, movieId });
+    return this.movieService.createFavoriteMovie({ userId, movieId }, language);
   }
 
   @Mutation(() => Number)
