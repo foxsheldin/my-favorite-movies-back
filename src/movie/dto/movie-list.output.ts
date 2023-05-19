@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { FavoriteMovieDto } from './favorite-movie-data.dto';
 
 @ObjectType()
-export class GetFavoriteMovieListOutput {
+export class MovieListOutput {
   @Field()
   page: number;
 

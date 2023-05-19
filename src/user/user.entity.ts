@@ -18,7 +18,7 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ type: 'varchar', length: 255, unique: true })
-  username: string;
+  email: string;
 
   @Field()
   @Column({ type: 'character varying' })

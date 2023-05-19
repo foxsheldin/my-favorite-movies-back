@@ -10,7 +10,7 @@ import { CreatedOrDeletedFavoriteMovie } from './dto/created-or-deleted-favorite
 import { FavoriteMovie } from './favorite-movie.entity';
 import { UpdatedWatchFavoriteMovieStatus } from './dto/updated-status.dto';
 import { RequestMoviesService } from 'src/request-movies/request-movies.service';
-import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.output';
+import { MovieListOutput } from './dto/movie-list.output';
 import { FavoriteMovieDto } from './dto/favorite-movie-data.dto';
 import { MovieFilterDto } from './dto/movie-filter.dto';
 import { GetFavoriteMovieListInput } from './dto/get-favorite-movie-list.input';
@@ -26,7 +26,7 @@ export class MovieService {
   async getFavoriteMovieList(
     userId: string,
     params: GetFavoriteMovieListInput,
-  ): Promise<GetFavoriteMovieListOutput> {
+  ): Promise<MovieListOutput> {
     const { language, limit, page } = params;
 
     const [favoriteMoviesIds, totalResults] =
@@ -54,10 +54,10 @@ export class MovieService {
     };
   }
 
-  async getAllMovies(
+  async getAllAvailableMovieList(
     userId: string,
     params: MovieFilterDto,
-  ): Promise<GetFavoriteMovieListOutput> {
+  ): Promise<MovieListOutput> {
     const requestFavoriteMovies = this.favoriteMovieRepository.find({
       where: { userId },
     });

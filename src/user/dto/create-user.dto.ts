@@ -5,7 +5,7 @@ import { IsEmail, IsString } from 'class-validator';
 export class CreateUserDto {
   @Field()
   @IsEmail()
-  username: string;
+  email: string;
 
   @Field()
   @IsString()

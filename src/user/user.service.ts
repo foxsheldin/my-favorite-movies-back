@@ -3,6 +3,8 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as argon from 'argon2';
+import { saltLength } from 'src/constants/security';
 
 @Injectable()
 export class UserService {
@@ -11,8 +13,8 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser({ username, password }: CreateUserDto): Promise<User> {
-    const findUser = await this.userRepository.findOneBy({ username });
+  async signUp({ email, password }: CreateUserDto): Promise<User> {
+    const findUser = await this.userRepository.findOneBy({ email });
 
     if (findUser) {
       throw new BadRequestException(
@@ -20,7 +22,14 @@ export class UserService {
       );
     }
 
-    const user = User.create({ username, password });
+    const encryptedPassword = await argon.hash(password, {
+      hashLength: saltLength,
+    });
+
+    const user = this.userRepository.create({
+      email,
+      password: encryptedPassword,
+    });
     await user.save();
 
     return user;

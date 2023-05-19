@@ -24,7 +24,7 @@ export class MovieFilterDto {
   @IsOptional()
   @IsArray()
   @Exclude()
-  selectedGenres?: number[];
+  selectedGenresIds?: number[];
 
   @Field(() => [Number])
   @ArrayMaxSize(2)

@@ -8,8 +8,8 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Mutation(() => User)
-  createUser(@Args('data') dto: CreateUserDto): Promise<User> {
-    return this.userService.createUser(dto);
+  signUp(@Args('data') dto: CreateUserDto): Promise<User> {
+    return this.userService.signUp(dto);
   }
 
   @Query(() => User)

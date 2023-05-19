@@ -3,8 +3,8 @@
 # ------------------------------------------------------
 
 input CreateUserDto {
+  email: String!
   password: String!
-  username: String!
 }
 
 type FavoriteGenre {
@@ -52,34 +52,34 @@ input GetFavoriteMovieListInput {
   page: Float = 1
 }
 
-type GetFavoriteMovieListOutput {
+input MovieFilterDto {
+  language: String
+  page: Float
+  popularity: [Float!]!
+  releaseYear: Float
+  selectedGenresIds: [Float!]
+}
+
+type MovieListOutput {
   page: Float!
   results: [FavoriteMovieDto!]
   totalPages: Float!
   totalResults: Float!
 }
 
-input MovieFilterDto {
-  language: String
-  page: Float
-  popularity: [Float!]!
-  releaseYear: Float
-  selectedGenres: [Float!]
-}
-
 type Mutation {
   createFavoriteMovie(language: String, movieId: Float!, userId: String!): FavoriteMovieDto!
-  createUser(data: CreateUserDto!): User!
   deleteFavoriteMovie(movieId: Float!, userId: String!): Float!
+  signUp(data: CreateUserDto!): User!
   updateSelectedGenres(data: UpdatedFavoriteGenres!): [Float!]!
   updateWatchedMovieStatus(movieId: Float!, status: Boolean!, userId: String!): FavoriteMovie!
 }
 
 type Query {
-  getAllMovies(params: MovieFilterDto!, userId: String!): GetFavoriteMovieListOutput!
+  getAllAvailableMovieList(params: MovieFilterDto!, userId: String!): MovieListOutput!
   getFavoriteGenresList(userId: String!): [Float!]!
   getFavoriteMovieIds(userId: String!): [Float!]!
-  getFavoriteMovieList(params: GetFavoriteMovieListInput!, userId: String!): GetFavoriteMovieListOutput!
+  getFavoriteMovieList(params: GetFavoriteMovieListInput!, userId: String!): MovieListOutput!
   getGenreList(language: String): [GenreListOutput!]!
   getProfile(userId: String!): User!
 }
@@ -90,9 +90,9 @@ input UpdatedFavoriteGenres {
 }
 
 type User {
+  email: String!
   favoriteGenres: [FavoriteGenre!]!
   favoriteMovies: [FavoriteMovie!]!
   id: String!
   password: String!
-  username: String!
 }

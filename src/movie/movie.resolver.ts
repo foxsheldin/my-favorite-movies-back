@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MovieService } from './movie.service';
-import { GetFavoriteMovieListOutput } from './dto/get-favorite-movie-list.output';
+import { MovieListOutput } from './dto/movie-list.output';
 import { FavoriteMovie } from './favorite-movie.entity';
 import { FavoriteMovieDto } from './dto/favorite-movie-data.dto';
 import { MovieFilterDto } from './dto/movie-filter.dto';
@@ -10,20 +10,20 @@ import { GetFavoriteMovieListInput } from './dto/get-favorite-movie-list.input';
 export class MovieResolver {
   constructor(private readonly movieService: MovieService) {}
 
-  @Query(() => GetFavoriteMovieListOutput)
+  @Query(() => MovieListOutput)
   getFavoriteMovieList(
     @Args('userId') userId: string,
     @Args('params') params: GetFavoriteMovieListInput,
-  ): Promise<GetFavoriteMovieListOutput> {
+  ): Promise<MovieListOutput> {
     return this.movieService.getFavoriteMovieList(userId, params);
   }
 
-  @Query(() => GetFavoriteMovieListOutput)
-  getAllMovies(
+  @Query(() => MovieListOutput)
+  getAllAvailableMovieList(
     @Args('userId') userId: string,
     @Args('params') params: MovieFilterDto,
-  ): Promise<GetFavoriteMovieListOutput> {
-    return this.movieService.getAllMovies(userId, params);
+  ): Promise<MovieListOutput> {
+    return this.movieService.getAllAvailableMovieList(userId, params);
   }
 
   @Query(() => [Number])
