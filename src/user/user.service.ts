@@ -13,15 +13,8 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser({ email, password }: CreateUserDto): Promise<User> {
-    const encryptedPassword = await argon.hash(password, {
-      hashLength: saltLength,
-    });
-
-    const user = this.userRepository.create({
-      email,
-      password: encryptedPassword,
-    });
+  async createUser(userDto: CreateUserDto): Promise<User> {
+    const user = this.userRepository.create(userDto);
     await user.save();
 
     return user;

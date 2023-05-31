@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
+import { INCORRECT_LOGIN_OR_PASSWORD } from './auth.constants';
 
 @Injectable()
 export class AuthService {
@@ -18,14 +19,14 @@ export class AuthService {
   async signIn({ email, password }: AuthDto): Promise<string> {
     const user = await this.userRepository.findOneBy({ email });
 
-    if (!user) throw new BadRequestException('Incorrect login or password');
+    if (!user) throw new BadRequestException(INCORRECT_LOGIN_OR_PASSWORD);
 
     const isPasswordConfirmed = await argon.verify(user.password, password, {
       saltLength,
     });
 
     if (!isPasswordConfirmed)
-      throw new BadRequestException('Incorrect login or password');
+      throw new BadRequestException(INCORRECT_LOGIN_OR_PASSWORD);
 
     return user.id;
   }
@@ -39,6 +40,10 @@ export class AuthService {
       );
     }
 
-    return this.userService.createUser({ email, password });
+    const encryptedPassword = await argon.hash(password, {
+      hashLength: saltLength,
+    });
+
+    return this.userService.createUser({ email, password: encryptedPassword });
   }
 }
