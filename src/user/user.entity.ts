@@ -7,21 +7,32 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Field, ObjectType } from '@nestjs/graphql';
 
+@ObjectType()
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
+  @Field()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field()
   @Column({ type: 'varchar', length: 255, unique: true })
-  username: string;
+  email: string;
 
+  @Field()
   @Column({ type: 'character varying' })
   password: string;
 
-  @OneToMany(() => FavoriteMovie, (favoriteMovie) => favoriteMovie.user)
+  @Field(() => [FavoriteMovie])
+  @OneToMany(() => FavoriteMovie, (favoriteMovie) => favoriteMovie.user, {
+    eager: true,
+  })
   favoriteMovies: FavoriteMovie[];
 
-  @OneToMany(() => FavoriteGenre, (favoriteGenre) => favoriteGenre.user)
+  @Field(() => [FavoriteGenre])
+  @OneToMany(() => FavoriteGenre, (favoriteGenre) => favoriteGenre.user, {
+    eager: true,
+  })
   favoriteGenres: FavoriteGenre[];
 }

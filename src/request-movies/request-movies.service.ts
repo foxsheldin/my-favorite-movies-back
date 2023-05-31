@@ -7,21 +7,14 @@ import {
   IMovieData,
   IMovieResponseData,
 } from './request-movies.types';
-import { GenreDto } from './dto/genre.dto';
 import { MoviesListDto } from './dto/movies-list.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FavoriteMovie } from 'src/movie/favorite-movie.entity';
-import { Repository } from 'typeorm';
+import { GenreListOutput } from './dto/genre-list.output';
 
 @Injectable()
 export class RequestMoviesService {
   private readonly logger = new Logger(RequestMoviesService.name);
 
-  constructor(
-    private readonly httpService: HttpService,
-    @InjectRepository(FavoriteMovie)
-    private readonly favoriteMovieRepository: Repository<FavoriteMovie>,
-  ) {
+  constructor(private readonly httpService: HttpService) {
     httpService.axiosRef.defaults.params = {
       apiKey: process.env.MOVIE_DB_API_KEY,
     };
@@ -57,54 +50,50 @@ export class RequestMoviesService {
     );
   }
 
-  async getGenre(dto: GenreDto): Promise<IGenreResponseData> {
-    const response = await this.httpService.axiosRef.get('genre/movie/list', {
-      params: { language: dto.language },
-    });
-    return response.data;
-  }
-
-  async getMoviesList(dto: MoviesListDto): Promise<IMovieResponseData> {
-    const requestFavoriteMovies = this.favoriteMovieRepository.find({
-      where: { userId: dto.userId },
-    });
-    const requestMoviesData = this.httpService.axiosRef.get<IMovieResponseData>(
-      'discover/movie',
+  async getGenre(language?: string): Promise<GenreListOutput[]> {
+    const response = await this.httpService.axiosRef.get<IGenreResponseData>(
+      'genre/movie/list',
       {
-        params: {
-          language: dto.language,
-          withGenres: dto.selectedGenres?.join(',') ?? '',
-          year: dto.releaseYear,
-          'vote_average.gte': dto.popularity[0],
-          'vote_average.lte': dto.popularity[1],
-          page: dto.page,
-        },
+        params: { language },
       },
     );
 
-    const [favoriteMovies, moviesData] = await Promise.all([
-      requestFavoriteMovies,
-      requestMoviesData,
-    ]);
-
-    const results = moviesData.data.results.map((movie) => {
-      const favoriteMovie = favoriteMovies.find(
-        (favoriteMovie) => favoriteMovie.movieId == movie.id,
-      );
-
-      return {
-        ...movie,
-        isFavorite: !!favoriteMovie,
-        isWatched: !!favoriteMovie?.isWatched,
-      };
-    });
-
-    return { ...moviesData.data, results };
+    return response.data.genres;
   }
 
-  async getMovieById(movieId: number): Promise<IMovieData> {
+  async getMoviesList({
+    language,
+    selectedGenres,
+    releaseYear,
+    popularity,
+    page,
+  }: MoviesListDto): Promise<IMovieResponseData> {
     try {
-      const response = await this.httpService.axiosRef.get(`movie/${movieId}`);
+      const response = await this.httpService.axiosRef.get<IMovieResponseData>(
+        'discover/movie',
+        {
+          params: {
+            language,
+            withGenres: selectedGenres?.join(',') ?? '',
+            year: releaseYear,
+            'vote_average.gte': popularity[0],
+            'vote_average.lte': popularity[1],
+            page,
+          },
+        },
+      );
+
+      return response.data;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  async getMovieById(movieId: number, language?: string): Promise<IMovieData> {
+    try {
+      const response = await this.httpService.axiosRef.get(`movie/${movieId}`, {
+        params: { language },
+      });
       return response.data;
     } catch (error) {
       this.logger.error(error);
