@@ -7,11 +7,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Mutation(() => User)
-  signUp(@Args('data') dto: CreateUserDto): Promise<User> {
-    return this.userService.signUp(dto);
-  }
-
   @Query(() => User)
   getProfile(@Args('userId') userId: string): Promise<User> {
     return this.userService.getProfile(userId);

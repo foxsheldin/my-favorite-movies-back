@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { MovieModule } from './movie/movie.module';
 import { GenreModule } from './genre/genre.module';
 import { RequestMoviesModule } from './request-movies/request-movies.module';
+import { AuthModule } from './auth/auth.module';
 import POSTRGRES_CONNECTION from './config/postgres.connection';
 
 @Module({
@@ -29,6 +30,7 @@ import POSTRGRES_CONNECTION from './config/postgres.connection';
       autoSchemaFile: 'schema.gql',
       sortSchema: true,
     }),
+    AuthModule,
   ],
 })
 export class AppModule {}

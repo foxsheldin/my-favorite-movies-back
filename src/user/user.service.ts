@@ -13,15 +13,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async signUp({ email, password }: CreateUserDto): Promise<User> {
-    const findUser = await this.userRepository.findOneBy({ email });
-
-    if (findUser) {
-      throw new BadRequestException(
-        'A user with such an email already exists!',
-      );
-    }
-
+  async createUser({ email, password }: CreateUserDto): Promise<User> {
     const encryptedPassword = await argon.hash(password, {
       hashLength: saltLength,
     });
