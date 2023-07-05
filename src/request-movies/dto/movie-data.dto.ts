@@ -26,14 +26,14 @@ export class MovieDto {
   @Field()
   popularity: number;
 
-  @Field()
-  posterPath: string;
+  @Field({ nullable: true })
+  posterPath?: string;
 
   @Field()
   releaseDate: string;
 
-  @Field()
-  title: string;
+  @Field({ nullable: true })
+  title?: string;
 
   @Field()
   video: boolean;
