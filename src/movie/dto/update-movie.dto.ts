@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 @ObjectType()
-export class CreatedOrDeletedFavoriteMovie {
+export class UpdateMovieDto {
   @Field()
   @IsNumber()
   @IsNotEmpty()

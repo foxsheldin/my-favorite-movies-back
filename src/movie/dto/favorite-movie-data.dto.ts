@@ -6,6 +6,6 @@ export class FavoriteMovieDto extends MovieDto {
   @Field({ nullable: true })
   isFavorite?: boolean;
 
-  @Field()
-  isWatched: boolean;
+  @Field({ nullable: true })
+  isWatched?: boolean;
 }

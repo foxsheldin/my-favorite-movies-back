@@ -33,32 +33,26 @@ export class MovieResolver {
   }
 
   @Mutation(() => FavoriteMovieDto)
-  createFavoriteMovie(
+  updateFavoriteMovie(
     @CurrentUser('id') userId: string,
     @Args('movieId') movieId: number,
     @Args('language', { nullable: true }) language?: string,
   ): Promise<FavoriteMovieDto> {
-    return this.movieService.createFavoriteMovie({ movieId, userId }, language);
-  }
-
-  @Mutation(() => Number)
-  deleteFavoriteMovie(
-    @CurrentUser('id') userId: string,
-    @Args('movieId') movieId: number,
-  ): Promise<number> {
-    return this.movieService.deleteFavoriteMovie({ movieId, userId });
+    return this.movieService.updateFavoriteMovie({
+      movieId,
+      userId,
+      language,
+    });
   }
 
   @Mutation(() => FavoriteMovie)
   updateWatchedMovieStatus(
     @CurrentUser('id') userId: string,
     @Args('movieId') movieId: number,
-    @Args('status') status: boolean,
   ): Promise<FavoriteMovie> {
     return this.movieService.updateWatchedMovieStatus({
       userId,
       movieId,
-      status,
     });
   }
 }

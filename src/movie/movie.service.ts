@@ -1,19 +1,15 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { CreatedOrDeletedFavoriteMovie } from './dto/created-or-deleted-favorite-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 import { FavoriteMovie } from './favorite-movie.entity';
-import { UpdatedWatchFavoriteMovieStatus } from './dto/updated-status.dto';
 import { RequestMoviesService } from 'src/request-movies/request-movies.service';
 import { MovieListOutput } from './dto/movie-list.output';
 import { FavoriteMovieDto } from './dto/favorite-movie-data.dto';
 import { MovieFilterDto } from './dto/movie-filter.dto';
 import { GetFavoriteMovieListInput } from './dto/get-favorite-movie-list.input';
+import { UpdateFavoriteMovieDto } from './dto/update-favorite-movie.dto';
 
 @Injectable()
 export class MovieService {
@@ -90,33 +86,33 @@ export class MovieService {
     ).map((movie) => movie.movieId);
   }
 
-  async createFavoriteMovie(
-    movieDto: CreatedOrDeletedFavoriteMovie,
-    language?: string,
-  ): Promise<FavoriteMovieDto> {
+  async updateFavoriteMovie({
+    language,
+    ...movieDto
+  }: UpdateFavoriteMovieDto): Promise<FavoriteMovieDto> {
     const favoriteMovie = await this.favoriteMovieRepository.findOneBy(
       movieDto,
     );
-
-    if (favoriteMovie) {
-      throw new BadRequestException(
-        'The movie has already been added to favorites',
-      );
-    }
-
-    await this.favoriteMovieRepository.create(movieDto).save();
 
     const movieData = await this.requestMoviesService.getMovieById(
       movieDto.movieId,
       language,
     );
 
+    if (favoriteMovie) {
+      await this.favoriteMovieRepository.delete(movieDto);
+
+      return { ...movieData, isFavorite: false };
+    }
+
+    await this.favoriteMovieRepository.create(movieDto).save();
+
     return { ...movieData, isFavorite: true, isWatched: false };
   }
 
-  async deleteFavoriteMovie(
-    movieDto: CreatedOrDeletedFavoriteMovie,
-  ): Promise<number> {
+  async updateWatchedMovieStatus(
+    movieDto: UpdateMovieDto,
+  ): Promise<FavoriteMovie> {
     const favoriteMovie = await this.favoriteMovieRepository.findOneBy(
       movieDto,
     );
@@ -125,24 +121,8 @@ export class MovieService {
       throw new NotFoundException('The movie does not exist in favorites');
     }
 
-    await this.favoriteMovieRepository.delete(movieDto);
-    return movieDto.movieId;
-  }
-
-  async updateWatchedMovieStatus(
-    movieDto: UpdatedWatchFavoriteMovieStatus,
-  ): Promise<FavoriteMovie> {
-    await this.favoriteMovieRepository.update(
-      { movieId: movieDto.movieId, userId: movieDto.userId },
-      { isWatched: movieDto.status },
-    );
-
-    const favoriteMovie = await this.favoriteMovieRepository.findOne({
-      where: {
-        movieId: movieDto.movieId,
-        userId: movieDto.userId,
-      },
-    });
+    favoriteMovie.isWatched = !favoriteMovie.isWatched;
+    favoriteMovie.save();
 
     return favoriteMovie;
   }

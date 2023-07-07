@@ -33,7 +33,7 @@ type FavoriteMovieDto {
   genreIds: [Float!]!
   id: Float!
   isFavorite: Boolean
-  isWatched: Boolean!
+  isWatched: Boolean
   originalLanguage: String!
   originalTitle: String!
   overview: String!
@@ -73,13 +73,12 @@ type MovieListOutput {
 }
 
 type Mutation {
-  createFavoriteMovie(language: String, movieId: Float!): FavoriteMovieDto!
-  deleteFavoriteMovie(movieId: Float!): Float!
   logout: Boolean!
   signIn(authDto: AuthDto!): AuthOutput!
   signUp(authDto: AuthDto!): User!
+  updateFavoriteMovie(language: String, movieId: Float!): FavoriteMovieDto!
   updateSelectedGenres(genreId: Float!): [Float!]!
-  updateWatchedMovieStatus(movieId: Float!, status: Boolean!): FavoriteMovie!
+  updateWatchedMovieStatus(movieId: Float!): FavoriteMovie!
 }
 
 type Query {
