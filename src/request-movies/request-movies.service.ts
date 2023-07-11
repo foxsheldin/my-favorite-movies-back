@@ -63,7 +63,7 @@ export class RequestMoviesService {
 
   async getMoviesList({
     language,
-    selectedGenres,
+    selectedGenresIds,
     releaseYear,
     popularity,
     page,
@@ -74,7 +74,7 @@ export class RequestMoviesService {
         {
           params: {
             language,
-            withGenres: selectedGenres?.join(',') ?? '',
+            withGenres: selectedGenresIds?.join(','),
             year: releaseYear,
             'vote_average.gte': popularity[0],
             'vote_average.lte': popularity[1],

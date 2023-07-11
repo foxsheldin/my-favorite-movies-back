@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GenreService } from './genre.service';
-import { UpdatedFavoriteGenres } from './dto/updated-favorite-genres.dto';
 import { GenreListOutput } from './dto/genre-list.output';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 
 @Resolver()
 export class GenreResolver {
@@ -15,14 +15,15 @@ export class GenreResolver {
   }
 
   @Query(() => [Number])
-  getFavoriteGenresList(@Args('userId') userId: string): Promise<number[]> {
+  getFavoriteGenresList(@CurrentUser('id') userId: string): Promise<number[]> {
     return this.genreService.getFavoriteGenresList(userId);
   }
 
   @Mutation(() => [Number])
   updateSelectedGenres(
-    @Args('data') genreDto: UpdatedFavoriteGenres,
+    @CurrentUser('id') userId: string,
+    @Args('genreId') genreId: number,
   ): Promise<number[]> {
-    return this.genreService.updateSelectedGenres(genreDto);
+    return this.genreService.updateSelectedGenres({ genreId, userId });
   }
 }

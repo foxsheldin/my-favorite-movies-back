@@ -7,6 +7,11 @@ input AuthDto {
   password: String!
 }
 
+type AuthOutput {
+  access_token: String!
+  user: User!
+}
+
 type FavoriteGenre {
   genreId: Float!
   id: Int!
@@ -28,14 +33,14 @@ type FavoriteMovieDto {
   genreIds: [Float!]!
   id: Float!
   isFavorite: Boolean
-  isWatched: Boolean!
+  isWatched: Boolean
   originalLanguage: String!
   originalTitle: String!
   overview: String!
   popularity: Float!
-  posterPath: String!
+  posterPath: String
   releaseDate: String!
-  title: String!
+  title: String
   video: Boolean!
   voteAverage: Float!
   voteCount: Float!
@@ -68,26 +73,21 @@ type MovieListOutput {
 }
 
 type Mutation {
-  createFavoriteMovie(language: String, movieId: Float!, userId: String!): FavoriteMovieDto!
-  deleteFavoriteMovie(movieId: Float!, userId: String!): Float!
-  signIn(data: AuthDto!): String!
-  signUp(data: AuthDto!): User!
-  updateSelectedGenres(data: UpdatedFavoriteGenres!): [Float!]!
-  updateWatchedMovieStatus(movieId: Float!, status: Boolean!, userId: String!): FavoriteMovie!
+  logout: Boolean!
+  signIn(authDto: AuthDto!): AuthOutput!
+  signUp(authDto: AuthDto!): User!
+  updateFavoriteMovie(language: String, movieId: Float!): FavoriteMovieDto!
+  updateSelectedGenres(genreId: Float!): [Float!]!
+  updateWatchedMovieStatus(movieId: Float!): FavoriteMovie!
 }
 
 type Query {
-  getAllAvailableMovieList(params: MovieFilterDto!, userId: String!): MovieListOutput!
-  getFavoriteGenresList(userId: String!): [Float!]!
-  getFavoriteMovieIds(userId: String!): [Float!]!
-  getFavoriteMovieList(params: GetFavoriteMovieListInput!, userId: String!): MovieListOutput!
+  getAllAvailableMovieList(params: MovieFilterDto!): MovieListOutput!
+  getFavoriteGenresList: [Float!]!
+  getFavoriteMovieIds: [Float!]!
+  getFavoriteMovieList(params: GetFavoriteMovieListInput!): MovieListOutput!
   getGenreList(language: String): [GenreListOutput!]!
-  getProfile(userId: String!): User!
-}
-
-input UpdatedFavoriteGenres {
-  genreId: Float!
-  userId: String!
+  getProfile: User!
 }
 
 type User {
@@ -95,5 +95,5 @@ type User {
   favoriteGenres: [FavoriteGenre!]!
   favoriteMovies: [FavoriteMovie!]!
   id: String!
-  password: String!
+  password: String
 }

@@ -1,4 +1,4 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloDriver } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -10,6 +10,8 @@ import { GenreModule } from './genre/genre.module';
 import { RequestMoviesModule } from './request-movies/request-movies.module';
 import { AuthModule } from './auth/auth.module';
 import POSTRGRES_CONNECTION from './config/postgres.connection';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -25,12 +27,19 @@ import POSTRGRES_CONNECTION from './config/postgres.connection';
     MovieModule,
     GenreModule,
     RequestMoviesModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       sortSchema: true,
+      cors: {
+        credential: true,
+        origin: process.env.FRONTEND_URL,
+        exposedHeaders: ['set-cookie'],
+      },
+      context: ({ req, res }) => ({ req, res }),
     }),
     AuthModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

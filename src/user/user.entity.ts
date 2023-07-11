@@ -20,7 +20,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ type: 'character varying' })
   password: string;
 
