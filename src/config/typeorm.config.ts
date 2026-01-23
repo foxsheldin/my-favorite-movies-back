@@ -3,8 +3,8 @@ import POSTRGRES_CONNECTION from './postgres.connection';
 
 const TypeOrmDataSource = new DataSource({
   ...(POSTRGRES_CONNECTION as DataSourceOptions),
-  entities: ['*/**/*.entity.ts'],
-  migrations: ['src/db/migrations/*.ts'],
+  entities: ['*/**/*.entity.js'],
+  migrations: ['*/db/migrations/*.js'],
 });
 
 TypeOrmDataSource.initialize()

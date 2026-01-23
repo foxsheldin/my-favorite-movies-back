@@ -24,6 +24,7 @@
     "migration:create": "yarn typeorm:cli migration:create",
     "migration:generate": "yarn typeorm:cli-datasource migration:generate",
     "migration:run": "yarn typeorm:cli-datasource migration:run",
+    "migration:run:prod": "node ./node_modules/typeorm/cli -d ./dist/config/typeorm.config.js migration:run",
     "migration:revert": "yarn typeorm:cli-datasource migration:revert"
   },
   "dependencies": {
