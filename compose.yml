@@ -1,0 +1,48 @@
+services:
+  backend: 
+    container_name: mfm-backend
+    restart: unless-stopped
+    build: 
+      context: ./
+      target: production
+    env_file: ./.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    ports:
+      - "${APP_PORT:-4000}:${APP_PORT:-4000}"
+    command: >
+      sh -c "
+      echo 'Waiting for PostgreSQL...' &&
+      sleep 5 &&
+      echo 'Running TypeORM migrations...' &&
+      yarn migration:run:prod && 
+      echo 'Starting the app...' &&
+      yarn start:prod"
+
+  postgres:
+    image: postgres:18.1-bookworm
+    container_name: mfm-postgres
+    restart: always
+    networks:
+      - app-network
+    volumes: 
+      - postgresql-data:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: ${TYPEORM_DATABASE}
+      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TYPEORM_USERNAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgresql-data:
